@@ -8,6 +8,7 @@ from tqdm.asyncio import tqdm
 from multiprocessing import Pool
 import numpy as np
 import openai
+from openai import OpenAI
 import pandas as pd
 import os
 os.environ["OPENAI_API_KEY"] = "replace your key here"
@@ -167,6 +168,28 @@ C: NOT_ATTEMPTED
 Just return the letters "A", "B", or "C", with no text around it.
 """.strip()
 
+def call_srt(messages, modelname):
+    k = 3
+    ouput = ""
+    while(k > 0):
+        k -= 1
+        try:
+            client = OpenAI(
+                api_key=os.environ["OPENAI_API_KEY"],
+                base_url="http://127.0.0.1:3000/v1",
+            )
+            completion = client.chat.completions.create(
+                model=modelname,
+                messages=messages
+            )
+            ouput = completion.choices[0].message.content
+            if ouput != None and ouput != "":
+                break
+        except Exception as e:
+            print(e)
+            continue
+    return ouput, None
+
 def call_model(messages, modelname):
     k = 3
     ouput = ""
@@ -223,7 +246,8 @@ def process_line(line):
     try:
         output = line.get("model_output", "")
         if output == "":
-          output,_ = call_model(messages, call_modelname)
+          output,_ = call_srt(messages, call_modelname)
+        output = output.split("</think>")[-1].strip()
         print("output: ", output)    
         line['model_output'] = output
         if output == "":
