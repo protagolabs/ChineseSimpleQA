@@ -223,7 +223,7 @@ def judge_answer(question, ref_answer, answer):
     prompt = judge_prompt.format(question = question, target = ref_answer, predicted_answer = answer)
     messages = [{"role": "system", "content": "你是一个智能助手，请根据给定问题、标准答案和模型预测的答案来评估模型的回答是否正确。"}]
     messages.append({"role": "user", "content": prompt})
-    output,_ = call_model(messages, "gpt-4o-0806")
+    output,_ = call_model(messages, "gpt-4o")
     correct = "C"
     try:
         match = re.search(r"(A|B|C)", output)
